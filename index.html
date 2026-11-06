@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ConcreteAI | Concrete Strength Prediction</title>
+<meta name="description" content="Predict concrete compressive strength in MPa from mix proportions using a Deep Forest machine learning model.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="grid-bg"></div>
+<header class="nav">
+  <a class="brand" href="#top"><span class="dot"></span>CONCRETE<b>AI</b></a>
+  <nav>
+    <a href="#predict">Predict</a><a href="#guide">Guide</a><a href="#data">Dataset</a><a href="#team">Team</a>
+  </nav>
+</header>
+
+<section class="hero" id="top">
+  <div class="stripe"></div>
+  <p class="tag">CIVIL ENGINEERING × MACHINE LEARNING</p>
+  <h1>Know your concrete's strength <span>before it cures.</span></h1>
+  <p class="lead">Enter the mix. Get the compressive strength in seconds, powered by a Deep Forest model trained on 1030 laboratory mixes and served from the Catalyst cloud.</p>
+  <div class="stats">
+    <div><b data-n="1030">0</b><span>Training mixes</span></div>
+    <div><b data-n="0.907" data-d="3">0</b><span>R² score</span></div>
+    <div><b data-n="3.397" data-d="3">0</b><span>MAE (MPa)</span></div>
+    <div><b data-n="8">0</b><span>Input factors</span></div>
+  </div>
+</section>
+
+<main>
+<section id="predict" class="panel">
+  <h2><i>01</i> Mix Parameters</h2>
+  <div class="split">
+    <form id="form" novalidate>
+      <div class="presets">
+        <span>Quick presets:</span>
+        <button type="button" data-p="demo">Demo mix</button>
+        <button type="button" data-p="m25">Normal</button>
+        <button type="button" data-p="dam">Dam / mass</button>
+        <button type="button" data-p="clear" class="ghost">Clear</button>
+      </div>
+      <div class="fields" id="fields"></div>
+      <div class="live" id="live"></div>
+      <button class="go" id="go" type="submit"><span>PREDICT STRENGTH</span><em></em></button>
+      <p class="err" id="err" role="alert"></p>
+    </form>
+
+    <aside class="result" aria-live="polite">
+      <div class="ring">
+        <svg viewBox="0 0 200 200"><circle class="bg" cx="100" cy="100" r="86"/><circle class="fg" id="arc" cx="100" cy="100" r="86"/></svg>
+        <div class="val"><b id="out">--</b><span>MPa</span></div>
+      </div>
+      <div class="badge" id="grade">Awaiting input</div>
+      <ul class="kv" id="kv">
+        <li><span>Likely range (± RMSE 4.96)</span><b id="band">--</b></li>
+        <li><span>Concrete grade reached</span><b id="gr">--</b></li>
+        <li><span>Water / cementitious ratio</span><b id="wcm">--</b></li>
+        <li><span>Fresh density (kg/m³)</span><b id="den">--</b></li>
+        <li><span>Cement saved vs 400 kg/m³</span><b id="sav">--</b></li>
+      </ul>
+      <p class="note" id="note">Estimate only. Confirm with standard cube tests.</p>
+    </aside>
+  </div>
+  <div class="hist"><h3>Prediction history <button id="clr" class="ghost">Clear</button></h3><div class="tw"><table id="ht"><thead><tr><th>#</th><th>Cement</th><th>Slag</th><th>Fly ash</th><th>Water</th><th>SP</th><th>Age</th><th>MPa</th></tr></thead><tbody></tbody></table></div></div>
+</section>
+
+<section id="guide" class="panel">
+  <h2><i>02</i> How to Use</h2>
+  <div class="cards">
+    <article><b>1</b><h4>Enter the mix</h4><p>Use kg per m³ of concrete from the batch ticket. Enter 0 for slag, fly ash or superplasticizer if absent.</p></article>
+    <article><b>2</b><h4>Set the age</h4><p>Age in days since casting (1 to 365). The same mix gives very different results at 7 and 28 days.</p></article>
+    <article><b>3</b><h4>Predict</h4><p>The values are sent securely to the Catalyst QuickML endpoint, which runs the trained model.</p></article>
+    <article><b>4</b><h4>Read with care</h4><p>Compare with the target mean strength. Keep a margin of about 5 MPa for model error.</p></article>
+  </div>
+  <div class="tw"><table><thead><tr><th>Grade</th><th>fck</th><th>s</th><th>Target mean (fck + 1.65 s)</th></tr></thead>
+  <tbody><tr><td>M25</td><td>25</td><td>4.0</td><td>31.6 MPa</td></tr><tr><td>M30</td><td>30</td><td>5.0</td><td>38.3 MPa</td></tr><tr><td>M35</td><td>35</td><td>5.0</td><td>43.3 MPa</td></tr><tr><td>M40</td><td>40</td><td>5.0</td><td>48.3 MPa</td></tr></tbody></table></div>
+</section>
+
+<section id="data" class="panel">
+  <h2><i>03</i> Model &amp; Dataset</h2>
+  <div class="two">
+    <div>
+      <p>The engine is a <b>Deep Forest</b> (Random Forest + ExtraTrees layers) trained on the UCI <i>Concrete Compressive Strength</i> dataset (ID 165, I-Cheng Yeh): 822 training and 208 test samples, no missing values.</p>
+      <ul class="bars">
+        <li><span>Cement</span><i style="--w:100%"></i><b>+0.50</b></li>
+        <li><span>Superplasticizer</span><i style="--w:74%"></i><b>+0.37</b></li>
+        <li><span>Age</span><i style="--w:66%"></i><b>+0.33</b></li>
+        <li><span>Blast slag</span><i style="--w:26%"></i><b>+0.13</b></li>
+        <li class="neg"><span>Water</span><i style="--w:58%"></i><b>−0.29</b></li>
+        <li class="neg"><span>Fine aggregate</span><i style="--w:34%"></i><b>−0.17</b></li>
+      </ul>
+      <p class="small">Correlation with compressive strength.</p>
+    </div>
+    <div class="tw"><table><thead><tr><th>Input</th><th>Unit</th><th>Min</th><th>Mean</th><th>Max</th></tr></thead><tbody id="dt"></tbody></table></div>
+  </div>
+  <p class="warn">⚠ Predictions outside these ranges are extrapolations. The dataset is from 2007 and covers laboratory mixes only. This tool is a screening aid, not a design or safety certificate.</p>
+</section>
+
+<section id="team" class="panel">
+  <h2><i>04</i> Project Team</h2>
+  <p class="small">Minor Project, 5th Semester Diploma in Civil Engineering, Government Polytechnic Sheikhpura (SBTE Patna). Supervisors: Mr. Prabhat Kumar and Mr. Pintu Kumar.</p>
+  <div class="team" id="team-list"></div>
+</section>
+</main>
+
+<footer>
+  <p>ConcreteAI · Comprehensive Analysis and Prediction of Concrete Characteristics Using Machine Learning: A Case Study of Dam Structures</p>
+  <p>Department of Civil Engineering · Government Polytechnic Sheikhpura</p>
+</footer>
+<script src="script.js"></script>
+</body>
+</html>
